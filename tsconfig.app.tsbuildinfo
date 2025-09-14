@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/firebase/config.ts","./src/stores/exchange.ts","./src/app.vue","./src/components/currencyconverter.vue"],"version":"5.8.3"}
