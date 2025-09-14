@@ -108,6 +108,6 @@ yarn coverage
 - Vitest - Framework de pruebas
 - Tailwind CSS - Framework de estilos
 
-## Licencia
+## LINK 
+[https://currency-exchange-steel.vercel.app/](https://currency-exchange-steel.vercel.app/)
 
-Este proyecto está bajo la Licencia MIT.
