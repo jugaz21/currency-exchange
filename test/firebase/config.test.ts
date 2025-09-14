@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeEach } from "vitest";
+import { db } from "../../src/firebase/config";
 
 // 🚀 define los mocks directamente dentro del vi.mock
 vi.mock("firebase/firestore", () => {
@@ -15,15 +16,12 @@ vi.mock("firebase/app", () => {
   };
 });
 
-// ⚠️ importa después de los mocks
-import { db } from "../../src/firebase/config";
-
 describe("Firebase Config", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("debería inicializar Firestore", () => {
+  test("debería inicializar Firestore", () => {
     expect(db).toBe("mockedFirestore");
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 
 // Mock básico de la aplicación Vue
 const mockApp = {
@@ -31,18 +31,18 @@ vi.mock('../src/App.vue', () => ({
 }));
 
 describe('main.ts', () => {
-  it('debería inicializar la aplicación sin errores', async () => {
+  test('debería inicializar la aplicación sin errores', async () => {
     // Esta prueba solo verifica que el archivo se puede importar sin errores
     await expect(import('../src/main')).resolves.not.toThrow();
   });
 
-  it('debería crear una instancia de la aplicación', async () => {
+  test('debería crear una instancia de la aplicación', async () => {
     const { createApp } = await import('vue');
     await import('../src/main');
     expect(createApp).toHaveBeenCalled();
   });
 
-  it('debería montar la aplicación en el elemento #app', async () => {
+  test('debería montar la aplicación en el elemento #app', async () => {
     await import('../src/main');
     expect(mockApp.mount).toHaveBeenCalledWith('#app');
   });

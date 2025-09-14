@@ -48,11 +48,17 @@ export const useExchangeStore = defineStore('exchange', () => {
 
   // Acciones
   function convertToDollars(soles: number): number {
-    return soles / salePrice.value;
+    if (!salePrice.value) return 0;
+    const result = soles / salePrice.value;
+    // Redondear a 2 decimales para moneda
+    return Math.round(result * 100) / 100;
   }
 
   function convertToSoles(dollars: number): number {
-    return dollars * purchasePrice.value;
+    if (!purchasePrice.value) return 0;
+    const result = dollars * purchasePrice.value;
+    // Redondear a 2 decimales para moneda
+    return Math.round(result * 100) / 100;
   }
 
   // Clean up subscription on unmount

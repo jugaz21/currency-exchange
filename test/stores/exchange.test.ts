@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useExchangeStore } from '../../src/stores/exchange';
 
@@ -69,19 +69,19 @@ describe('useExchangeStore', () => {
     vi.clearAllMocks();
   });
 
-  it('debe inicializar con valores por defecto', () => {
+  test('debe inicializar con valores por defecto', () => {
     expect(store.purchasePrice).toBe(0);
     expect(store.salePrice).toBe(0);
     expect(store.loading).toBe(true);
     expect(store.error).toBeNull();
   });
 
-  it('debe suscribirse a cambios en Firestore', () => {
+  test('debe suscribirse a cambios en Firestore', () => {
     expect(mockOnSnapshot).toHaveBeenCalledTimes(1);
     expect(mockDoc).toHaveBeenCalledWith({}, 'rates', 'TDmXIypgLKKfNggHHSnw');
   });
 
-  it('debe actualizar precios cuando Firestore cambia', async () => {
+  test('debe actualizar precios cuando Firestore cambia', async () => {
     mockOnNext({
       exists: () => true,
       data: () => ({ purchase_price: 3.85, sale_price: 3.95 }),
@@ -95,7 +95,7 @@ describe('useExchangeStore', () => {
     expect(store.error).toBeNull();
   });
 
-  it('debe manejar error de Firestore', async () => {
+  test('debe manejar error de Firestore', async () => {
     const error = new Error('Error de conexión');
     mockOnError(error);
 
@@ -105,17 +105,17 @@ describe('useExchangeStore', () => {
     expect(store.loading).toBe(false);
   });
 
-  it('debe limpiar la suscripción al resetear', () => {
+  test('debe limpiar la suscripción al resetear', () => {
     store.$reset();
     expect(mockUnsubscribe).toHaveBeenCalledTimes(1);
   });
 
-  it('debe convertir de soles a dólares', () => {
+  test('debe convertir de soles a dólares', () => {
     store.salePrice = 3.8;
     expect(store.convertToDollars(38)).toBeCloseTo(10);
   });
 
-  it('debe convertir de dólares a soles', () => {
+  test('debe convertir de dólares a soles', () => {
     store.purchasePrice = 3.9;
     expect(store.convertToSoles(10)).toBeCloseTo(39);
   });

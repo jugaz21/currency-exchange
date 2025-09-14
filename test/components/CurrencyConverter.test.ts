@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { ref, computed } from 'vue';
-// Importar el componente después de configurar el entorno
 import CurrencyConverter from '../../src/components/CurrencyConverter.vue';
-
+import { useExchangeStore } from '../../src/stores/exchange';
 // Mock de Firebase
 vi.mock('../../src/firebase/config', () => ({
   db: {
@@ -18,9 +17,6 @@ vi.mock('../../src/firebase/config', () => ({
 vi.mock('../../src/stores/exchange', () => ({
   useExchangeStore: vi.fn()
 }));
-
-// Importar el store después de configurar el mock
-import { useExchangeStore } from '../../src/stores/exchange';
 
 describe('CurrencyConverter.vue', () => {
   let store: any;
@@ -44,11 +40,11 @@ describe('CurrencyConverter.vue', () => {
     vi.clearAllMocks();
   });
 
-  it('usa purchasePrice cuando activeTab = Compra', () => {
-    // Mock store
+  test('usa purchasePrice cuando activeTab = Compra', () => {
+    // Configuramos un mock del store con valores de prueba
     const exchangeStore = {
-      purchasePrice: ref(3.557),
-      salePrice: ref(3.563)
+      purchasePrice: ref(3.557),  // Precio de compra simulado
+      salePrice: ref(3.563)       // Precio de venta simulado
     }
 
     // Variables reactivas
@@ -57,27 +53,32 @@ describe('CurrencyConverter.vue', () => {
     const internalAmount = ref<number | null>(null)
     const displayAmount = ref<string | null>(null)
 
-    // Función a probar
+    // Función a probar: Inicializa los montos según la pestaña activa
     const initializeAmounts = (): void => {
+      // Obtenemos el precio según la pestaña activa
       const price =
         activeTab.value === 'Compra'
-          ? exchangeStore.purchasePrice.value
-          : salePrice.value
+          ? exchangeStore.purchasePrice.value  // Usamos precio de compra
+          : salePrice.value                    // Usamos precio de venta
 
-      internalAmount.value = Number(price.toFixed(3))
-      displayAmount.value = price.toFixed(3)
+      // Asignamos el valor formateado a 3 decimales
+      // Esto se hace para que el valor sea más legible y fácil de trabajar
+      internalAmount.value = Number(price.toFixed(3))  // Como número
+      displayAmount.value = price.toFixed(3)           // Como string
     }
 
-    // Act
+    // Act - Ejecutamos la función que queremos probar
     initializeAmounts()
 
-    // Assert
+    // Assert - Verificamos que los valores sean los esperados
+    // Verificamos que el valor interno sea 3.557 (número)
     expect(internalAmount.value).toBe(3.557)
+    // Verificamos que el valor de visualización sea '3.557' (string)
     expect(displayAmount.value).toBe('3.557')
   })
 
 
-  it('debe usar correctamente exchangeStore.salePrice cuando activeTab es Venta', async () => {
+  test('debe usar correctamente exchangeStore.salePrice cuando activeTab es Venta', async () => {
     // Configurar el store con un valor conocido para salePrice
     store.loading = false;
     const testSalePrice = 4.2;
@@ -100,7 +101,7 @@ describe('CurrencyConverter.vue', () => {
     expect(input.value).toBe(formattedPrice);
   });
   
-  it('debe renderizar el componente correctamente', async () => {
+  test('debe renderizar el componente correctamente', async () => {
     render(CurrencyConverter);
     
     // Verificar que los elementos principales estén presentes
@@ -111,13 +112,13 @@ describe('CurrencyConverter.vue', () => {
     expect(await screen.findByRole('button', { name: /Iniciar operación/i })).toBeTruthy();
   });
 
-  it('debe mostrar las pestañas de compra y venta', async () => {
+  test('debe mostrar las pestañas de compra y venta', async () => {
     render(CurrencyConverter);
     expect(await screen.findByText('Dolár compra')).toBeTruthy();
     expect(await screen.findByText('Dolár venta')).toBeTruthy();
   });
 
-  it('debe cambiar a la pestaña de venta al hacer clic', async () => {
+  test('debe cambiar a la pestaña de venta al hacer clic', async () => {
     render(CurrencyConverter);
     const ventaButton = await screen.findByText('Dolár venta');
     await fireEvent.click(ventaButton);
@@ -130,7 +131,7 @@ describe('CurrencyConverter.vue', () => {
     expect(activeButton.className).toContain('text-[#2F00FF]');
   });
 
-  it('debe manejar la entrada de montos correctamente', async () => {
+  test('debe manejar la entrada de montos correctamente', async () => {
     render(CurrencyConverter);
     const input = await screen.findByRole('textbox') as HTMLInputElement;
     
@@ -155,7 +156,7 @@ describe('CurrencyConverter.vue', () => {
     expect(input.value).toBe('100.50');
   });
   
-  it('debe calcular correctamente la conversión de dólares a soles en la pestaña de compra', async () => {
+  test('debe calcular correctamente la conversión de dólares a soles en la pestaña de compra', async () => {
     // Arrange
     render(CurrencyConverter);
     
@@ -170,11 +171,13 @@ describe('CurrencyConverter.vue', () => {
     // Verificar que el input mantiene el valor ingresado
     const inputElement = input as HTMLInputElement;
     expect(inputElement.value).toBe('100');
+
+
     // Verificar que se muestra el resultado correcto
     await screen.findByText('S/ 380.00'); // 100 * 3.8 = 380
   });
   
-  it('debe calcular correctamente la conversión de soles a dólares en la pestaña de venta', async () => {
+  test('debe calcular correctamente la conversión de soles a dólares en la pestaña de venta', async () => {
     // Arrange
     render(CurrencyConverter);
     
@@ -190,15 +193,16 @@ describe('CurrencyConverter.vue', () => {
     await fireEvent.update(input, '100');
     await fireEvent.click(button);
     
-    // Assert
     // Verificar que el input mantiene el valor ingresado
     const inputElement = input as HTMLInputElement;
     expect(inputElement.value).toBe('100');
+
+
     // Verificar que se muestra el resultado correcto (100 / 3.9 = 25.64)
     await screen.findByText('$ 25.64'); // 100 / 3.9 = 25.64
   });
   
-  it('debe intercambiar correctamente entre monedas', async () => {
+  test('debe intercambiar correctamente entre monedas', async () => {
     render(CurrencyConverter);
     
     // Verificar monedas iniciales
@@ -219,7 +223,7 @@ describe('CurrencyConverter.vue', () => {
     expect(await screen.findByText('Recibes')).toBeTruthy();
   });
   
-  it('debe manejar correctamente el estado de carga', async () => {
+  test('debe manejar correctamente el estado de carga', async () => {
     // Configurar el store para que esté cargando
     store.loading = true;
     
@@ -230,7 +234,7 @@ describe('CurrencyConverter.vue', () => {
     expect(loadingIndicator).toBeTruthy();
   });
   
-  it('debe mostrar mensajes de error cuando corresponda', async () => {
+  test('debe mostrar mensajes de error cuando corresponda', async () => {
     // Configurar un error en el store
     store.error = 'Error al cargar los tipos de cambio';
     
@@ -241,7 +245,7 @@ describe('CurrencyConverter.vue', () => {
     expect(errorMessage).toBeTruthy();
   });
   
-  it('debe deshabilitar el botón cuando no hay monto válido', async () => {
+  test('debe deshabilitar el botón cuando no hay monto válido', async () => {
     render(CurrencyConverter);
     
     // El botón debe estar habilitado inicialmente porque hay un monto por defecto (el tipo de cambio)

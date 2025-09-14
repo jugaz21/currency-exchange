@@ -121,23 +121,27 @@ const calculateToAmount = (): number => {
   if (!internalAmount.value || isNaN(parseFloat(internalAmount.value))) return 0;
 
   const amountNum = parseFloat(internalAmount.value);
-  let result = 0;
-
-  // When converting PEN to USD
+  
+  // Usar las funciones del store para las conversiones
   if (fromCurrency.value === 'PEN' && toCurrency.value === 'USD') {
-    result = activeTab.value === 'Compra'
-      ? amountNum / exchangeStore.purchasePrice  // Buying USD with PEN
-      : amountNum / exchangeStore.salePrice;     // Selling PEN for USD
-  }
-  // When converting USD to PEN
+    // En modo Venta, convertir Soles a Dólares usando el precio de venta
+    if (activeTab.value === 'Venta') {
+      return amountNum / exchangeStore.salePrice;
+    }
+    // En modo Compra, usar la función del store
+    return exchangeStore.convertToDollars(amountNum);
+  } 
+  // Convertir de Dólares a Soles
   else if (fromCurrency.value === 'USD' && toCurrency.value === 'PEN') {
-    result = activeTab.value === 'Compra'
-      ? amountNum * exchangeStore.purchasePrice  // Buying PEN with USD
-      : amountNum * exchangeStore.salePrice;     // Selling USD for PEN
+    // En modo Venta, convertir Dólares a Soles usando el precio de venta
+    if (activeTab.value === 'Venta') {
+      return amountNum * exchangeStore.salePrice;
+    }
+    // En modo Compra, usar la función del store
+    return exchangeStore.convertToSoles(amountNum);
   }
   
-  // Round to 2 decimal places for currency
-  return Math.round(result * 100) / 100;
+  return 0; // Caso por defecto, no debería ocurrir
 };
 
 const setActiveTab = (tab: string): void => {
